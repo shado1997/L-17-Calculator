@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор статів та урону</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #4a6fa5;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .lang-selector {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .lang-btn {
+            padding: 8px 12px;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .lang-btn.active {
+            background: #ffd700;
+            color: #333;
+            border-color: #ffd700;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            background: #3a5f95;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn:hover {
+            background: #2a4f85;
+        }
+        
+        .tab-btn.active {
+            background: #ffd700;
+            color: #333;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .level-input {
+            margin-bottom: 20px;
+        }
+        
+        .level-input label {
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .level-input input {
+            width: 80px;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #5a7fb5;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: #3a5f95;
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        td {
+            padding: 10px 8px;
+            color: white;
+            text-align: center;
+            border-bottom: 1px solid #4a6fa5;
+        }
+        
+        td:first-child {
+            font-weight: bold;
+            text-align: left;
+            padding-left: 15px;
+        }
+        
+        input[type="number"] {
+            width: 70px;
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        input[type="text"] {
+            width: 120px;
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        select {
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .stat-result {
+            font-weight: bold;
+            font-size: 18px;
+            color: #fff;
+        }
+        
+        .mod-stat-result {
+            font-weight: bold;
+            font-size: 16px;
+            color: #ffd700;
+            display: none;
+        }
+        
+        .mod-input {
+            width: 55px;
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .chip-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .clear-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        
+        .clear-btn:hover {
+            background: #c0392b;
+        }
+        
+        .formula-info {
+            margin-top: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+        }
+        
+        .formula-info summary {
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            user-select: none;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .formula-info summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .formula-info summary::before {
+            content: '▶';
+            transition: transform 0.2s;
+        }
+        
+        .formula-info[open] summary::before {
+            transform: rotate(90deg);
+        }
+        
+        .formula-info summary:hover {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .formula-info:not([open]) summary:hover {
+            border-radius: 8px;
+        }
+        
+        .formula-info .formula-content {
+            padding: 0 15px 15px 15px;
+        }
+        
+        .formula-info h3 {
+            margin-top: 0;
+        }
+        
+        .formula {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        /* Damage Calculator Styles */
+        .damage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .damage-field {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .damage-field label {
+            display: block;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .damage-field input,
+        .damage-field select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .damage-result {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .damage-result h2 {
+            color: white;
+            margin: 0 0 10px 0;
+        }
+        
+        .damage-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .damage-range {
+            color: #ccc;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-field input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .checkbox-field label {
+            margin-bottom: 0;
+        }
+        
+        /* Damage Cards System */
+        .damage-cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .damage-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            flex: 1 1 400px;
+            min-width: 380px;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .damage-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .damage-card-title {
+            color: #ffd700;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .damage-card-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .card-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .clear-card-btn {
+            background: #e67e22;
+            color: white;
+        }
+        
+        .clear-card-btn:hover {
+            background: #d35400;
+        }
+        
+        .delete-card-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .delete-card-btn:hover {
+            background: #c0392b;
+        }
+        
+        .damage-card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .damage-card-field {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 6px;
+        }
+        
+        .damage-card-field label {
+            display: block;
+            color: #ccc;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+        
+        .damage-card-field input,
+        .damage-card-field select {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .damage-card-field.checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .damage-card-field.checkbox-field input {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .damage-card-field.checkbox-field label {
+            color: white;
+            font-size: 12px;
+            margin-bottom: 0;
+        }
+        
+        .damage-card-result {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .damage-card-result .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .damage-card-result .range {
+            color: #aaa;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        
+        .damage-card-notes {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .add-card-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .add-card-btn:hover {
+            background: #219a52;
+        }
+        
+        .add-card-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        
+        /* Stat Modifier Controls */
+        .stat-with-modifier {
+            position: relative;
+        }
+        
+        .stat-with-modifier input {
+            padding-right: 60px;
+        }
+        
+        .modifier-controls {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 2px;
+        }
+        
+        .mod-btn {
+            width: 22px;
+            height: 22px;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .mod-btn-plus {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .mod-btn-plus:hover {
+            background: #219a52;
+        }
+        
+        .mod-btn-minus {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .mod-btn-minus:hover {
+            background: #c0392b;
+        }
+        
+        .modifier-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ffd700;
+            color: #333;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <h1 data-i18n="title">Калькулятор L17</h1>
+            <div class="lang-selector">
+                <button class="lang-btn active" onclick="setLanguage('uk')">UA</button>
+                <button class="lang-btn" onclick="setLanguage('ru')">RU</button>
+                <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('stats')">📊 Стати</button>
+            <button class="tab-btn" onclick="switchTab('damage')">⚔️ Урон</button>
+        </div>
+        
+        <!-- Stats Calculator Tab -->
+        <div id="stats-tab" class="tab-content active">
+        
+        <div class="level-input">
+            <label for="level">Рівень:</label>
+            <input type="number" id="level" placeholder="100" min="1" max="100" oninput="calculateAll()">
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Назва стата</th>
+                    <th>Базові стати</th>
+                    <th>IV</th>
+                    <th>EV</th>
+                    <th>Характер</th>
+                    <th>Тренування</th>
+                    <th>Чіп</th>
+                    <th>Розкач (+)</th>
+                    <th>Розкач (-)</th>
+                    <th>Множник</th>
+                    <th>Стат</th>
+                    <th>Нотатки</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>HP</td>
+                    <td><input type="number" id="hp-base" min="1" oninput="calculateAll()"></td>
+                    <td><input type="number" id="hp-iv" min="0" max="63" oninput="calculateAll()"></td>
+                    <td><input type="number" id="hp-ev" min="0" max="252" oninput="calculateAll()"></td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td class="stat-result" id="hp-result">—</td>
+                    <td><input type="text" id="hp-notes" placeholder="Нотатки..."></td>
+                    <td><button class="clear-btn" onclick="clearRow('hp')">Очистити</button></td>
+                </tr>
+                <tr>
+                    <td>Атака</td>
+                    <td><input type="number" id="atk-base" min="1" oninput="calculateAll()"></td>
+                    <td><input type="number" id="atk-iv" min="0" max="63" oninput="calculateAll()"></td>
+                    <td><input type="number" id="atk-ev" min="0" max="252" oninput="calculateAll()"></td>
+                    <td>
+                        <select id="atk-char" oninput="calculateAll()">
+                            <option value="0.9">0.9</option>
+                            <option value="1" selected>1</option>
+                            <option value="1.1">1.1</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select id="atk-train" oninput="calculateAll()">
+                            <option value="1">Нет</option>
+                            <option value="1.1">Начальная (1.1)</option>
+                            <option value="1.18">Расширенная (1.18)</option>
+                            <option value="1.25">Мастерская (1.25)</option>
+                            <option value="1.31">Знаменитая (1.31)</option>
+                            <option value="1.36">Легендарная (1.36)</option>
+                            <option value="1.4">Именная (1.4)</option>
+                        </select>
+                    </td>
+                    <td><input type="checkbox" class="chip-checkbox" id="atk-chip" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="atk-mod-n" min="0" max="6" placeholder="0" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="atk-mod-m" min="0" max="6" placeholder="0" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="atk-mult" step="0.01" placeholder="1" oninput="calculateAll()"></td>
+                    <td class="stat-result" id="atk-result">—</td>
+                    <td><input type="text" id="atk-notes" placeholder="Нотатки..."></td>
+                    <td><button class="clear-btn" onclick="clearRow('atk')">Очистити</button></td>
+                </tr>
+                <tr>
+                    <td>Захист</td>
+                    <td><input type="number" id="def-base" min="1" oninput="calculateAll()"></td>
+                    <td><input type="number" id="def-iv" min="0" max="63" oninput="calculateAll()"></td>
+                    <td><input type="number" id="def-ev" min="0" max="252" oninput="calculateAll()"></td>
+                    <td>
+                        <select id="def-char" oninput="calculateAll()">
+                            <option value="0.9">0.9</option>
+                            <option value="1" selected>1</option>
+                            <option value="1.1">1.1</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select id="def-train" oninput="calculateAll()">
+                            <option value="1">Нет</option>
+                            <option value="1.1">Начальная (1.1)</option>
+                            <option value="1.18">Расширенная (1.18)</option>
+                            <option value="1.25">Мастерская (1.25)</option>
+                            <option value="1.31">Знаменитая (1.31)</option>
+                            <option value="1.36">Легендарная (1.36)</option>
+                            <option value="1.4">Именная (1.4)</option>
+                        </select>
+                    </td>
+                    <td><input type="checkbox" class="chip-checkbox" id="def-chip" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="def-mod-n" min="0" max="6" placeholder="0" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="def-mod-m" min="0" max="6" placeholder="0" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="def-mult" step="0.01" placeholder="1" oninput="calculateAll()"></td>
+                    <td class="stat-result" id="def-result">—</td>
+                    <td><input type="text" id="def-notes" placeholder="Нотатки..."></td>
+                    <td><button class="clear-btn" onclick="clearRow('def')">Очистити</button></td>
+                </tr>
+                <tr>
+                    <td>Швидкість</td>
+                    <td><input type="number" id="spd-base" min="1" oninput="calculateAll()"></td>
+                    <td><input type="number" id="spd-iv" min="0" max="63" oninput="calculateAll()"></td>
+                    <td><input type="number" id="spd-ev" min="0" max="252" oninput="calculateAll()"></td>
+                    <td>
+                        <select id="spd-char" oninput="calculateAll()">
+                            <option value="0.9">0.9</option>
+                            <option value="1" selected>1</option>
+                            <option value="1.1">1.1</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select id="spd-train" oninput="calculateAll()">
+                            <option value="1">Нет</option>
+                            <option value="1.1">Начальная (1.1)</option>
+                            <option value="1.18">Расширенная (1.18)</option>
+                            <option value="1.25">Мастерская (1.25)</option>
+                            <option value="1.31">Знаменитая (1.31)</option>
+                            <option value="1.36">Легендарная (1.36)</option>
+                            <option value="1.4">Именная (1.4)</option>
+                        </select>
+                    </td>
+                    <td><input type="checkbox" class="chip-checkbox" id="spd-chip" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="spd-mod-n" min="0" max="6" placeholder="0" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="spd-mod-m" min="0" max="6" placeholder="0" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="spd-mult" step="0.01" placeholder="1" oninput="calculateAll()"></td>
+                    <td class="stat-result" id="spd-result">—</td>
+                    <td><input type="text" id="spd-notes" placeholder="Нотатки..."></td>
+                    <td><button class="clear-btn" onclick="clearRow('spd')">Очистити</button></td>
+                </tr>
+                <tr>
+                    <td>Спец. Атака</td>
+                    <td><input type="number" id="spa-base" min="1" oninput="calculateAll()"></td>
+                    <td><input type="number" id="spa-iv" min="0" max="63" oninput="calculateAll()"></td>
+                    <td><input type="number" id="spa-ev" min="0" max="252" oninput="calculateAll()"></td>
+                    <td>
+                        <select id="spa-char" oninput="calculateAll()">
+                            <option value="0.9">0.9</option>
+                            <option value="1" selected>1</option>
+                            <option value="1.1">1.1</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select id="spa-train" oninput="calculateAll()">
+                            <option value="1">Нет</option>
+                            <option value="1.1">Начальная (1.1)</option>
+                            <option value="1.18">Расширенная (1.18)</option>
+                            <option value="1.25">Мастерская (1.25)</option>
+                            <option value="1.31">Знаменитая (1.31)</option>
+                            <option value="1.36">Легендарная (1.36)</option>
+                            <option value="1.4">Именная (1.4)</option>
+                        </select>
+                    </td>
+                    <td><input type="checkbox" class="chip-checkbox" id="spa-chip" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="spa-mod-n" min="0" max="6" placeholder="0" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="spa-mod-m" min="0" max="6" placeholder="0" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="spa-mult" step="0.01" placeholder="1" oninput="calculateAll()"></td>
+                    <td class="stat-result" id="spa-result">—</td>
+                    <td><input type="text" id="spa-notes" placeholder="Нотатки..."></td>
+                    <td><button class="clear-btn" onclick="clearRow('spa')">Очистити</button></td>
+                </tr>
+                <tr>
+                    <td>Спец. Захист</td>
+                    <td><input type="number" id="spdef-base" min="1" oninput="calculateAll()"></td>
+                    <td><input type="number" id="spdef-iv" min="0" max="63" oninput="calculateAll()"></td>
+                    <td><input type="number" id="spdef-ev" min="0" max="252" oninput="calculateAll()"></td>
+                    <td>
+                        <select id="spdef-char" oninput="calculateAll()">
+                            <option value="0.9">0.9</option>
+                            <option value="1" selected>1</option>
+                            <option value="1.1">1.1</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select id="spdef-train" oninput="calculateAll()">
+                            <option value="1">Нет</option>
+                            <option value="1.1">Начальная (1.1)</option>
+                            <option value="1.18">Расширенная (1.18)</option>
+                            <option value="1.25">Мастерская (1.25)</option>
+                            <option value="1.31">Знаменитая (1.31)</option>
+                            <option value="1.36">Легендарная (1.36)</option>
+                            <option value="1.4">Именная (1.4)</option>
+                        </select>
+                    </td>
+                    <td><input type="checkbox" class="chip-checkbox" id="spdef-chip" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="spdef-mod-n" min="0" max="6" placeholder="0" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="spdef-mod-m" min="0" max="6" placeholder="0" oninput="calculateAll()"></td>
+                    <td><input type="number" class="mod-input" id="spdef-mult" step="0.01" placeholder="1" oninput="calculateAll()"></td>
+                    <td class="stat-result" id="spdef-result">—</td>
+                    <td><input type="text" id="spdef-notes" placeholder="Нотатки..."></td>
+                    <td><button class="clear-btn" onclick="clearRow('spdef')">Очистити</button></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <details class="formula-info">
+            <summary data-i18n="showFormulas">Показати формули</summary>
+            <div class="formula-content">
+                <h3>Формули розрахунку</h3>
+                <div class="formula">
+                    <strong>HP:</strong> HP = (BaseStat × 2 + IV + EV/2) × lvl/100 + 10 + lvl
+                </div>
+                <div class="formula">
+                    <strong>Інші стати:</strong> Stat = ((BaseStat × 2 + IV + EV/2) × lvl/100 + 5) × char × train [× chip]
+                </div>
+                <div class="formula">
+                    <strong>Модифікація в бою:</strong> ModStat = Stat × (2 + n) / (2 + m) × множник
+                </div>
+                <p><strong>Чіп:</strong> × 1.02 (якщо увімкнено)</p>
+                <p><strong>Розкач +:</strong> показник збільшення стата (0-6), <strong>Розкач -:</strong> показник зменшення стата (0-6)</p>
+                <p><strong>Множник:</strong> вільний множник для айтемів чи абілок (за замовчуванням 1)</p>
+                <p><strong>Важливо:</strong> Результат округлюється за математичними правилами.</p>
+            </div>
+        </details>
+        
+        </div><!-- End Stats Tab -->
+        
+        <!-- Damage Calculator Tab -->
+        <div id="damage-tab" class="tab-content">
+            <button class="add-card-btn" onclick="addDamageCard()">
+                ➕ Додати калькулятор
+            </button>
+            
+            <div class="damage-cards-container" id="damage-cards">
+                <!-- Cards will be added here dynamically -->
+            </div>
+            
+            <details class="formula-info">
+                <summary data-i18n="showFormulas">Показати формули</summary>
+                <div class="formula-content">
+                    <h3>Формула розрахунку урону</h3>
+                    <div class="formula">
+                        <strong>Damage</strong> = ((2 × lvl + 10) / 250 × Attack / Defense × Base + 2) × STAB × Type × Critical × Terrain × Item × Weather × other × random[0.85, 1]
+                    </div>
+                    <p><strong>STAB:</strong> 1.5 якщо тип атаки збігається з типом покемона, інакше 1</p>
+                    <p><strong>Type:</strong> коефіцієнт ефективності типу (0, 0.25, 0.5, 1, 2, 4, 8)</p>
+                    <p><strong>Critical:</strong> 1.5 при критичному ударі, інакше 1</p>
+                    <p><strong>Terrain:</strong> арена (1, 1.2, 1.5)</p>
+                    <p><strong>Item:</strong> айтем (1 / 1.1 STAB посилювач / 1.25 Сфера ярості / 1.15 Пов'язка хоробрості)</p>
+                    <p><strong>Weather:</strong> погода (1 / 0.5 послаблення / 1.5 посилення)</p>
+                    <p><strong>other:</strong> інші множники (абілки тощо)</p>
+                    <p><strong>random:</strong> випадкове число від 0.85 до 1</p>
+                    <p><strong>Важливо:</strong> Результат округлюється в меншу сторону (floor).</p>
+                </div>
+            </details>
+        </div><!-- End Damage Tab -->
+    </div>
+
+    <script>
+        // Translations
+        const translations = {
+            uk: {
+                title: 'Калькулятор L17',
+                tabStats: '📊 Стати',
+                tabDamage: '⚔️ Урон',
+                level: 'Рівень:',
+                statName: 'Назва стата',
+                baseStats: 'Базові стати',
+                character: 'Характер',
+                training: 'Тренування',
+                chip: 'Чіп',
+                boostPlus: 'Розкач (+)',
+                boostMinus: 'Розкач (-)',
+                multiplier: 'Множник',
+                stat: 'Стат',
+                notes: 'Нотатки',
+                actions: 'Дії',
+                clear: 'Очистити',
+                hp: 'HP',
+                attack: 'Атака',
+                defense: 'Захист',
+                speed: 'Швидкість',
+                spAttack: 'Спец. Атака',
+                spDefense: 'Спец. Захист',
+                trainNone: 'Нет',
+                trainInitial: 'Начальная (1.1)',
+                trainExpanded: 'Расширенная (1.18)',
+                trainMaster: 'Мастерская (1.25)',
+                trainFamous: 'Знаменитая (1.31)',
+                trainLegendary: 'Легендарная (1.36)',
+                trainNamed: 'Именная (1.4)',
+                notesPlaceholder: 'Нотатки...',
+                showFormulas: 'Показати формули',
+                formulasTitle: 'Формули розрахунку',
+                formulaHP: 'HP = (BaseStat × 2 + IV + EV/2) × lvl/100 + 10 + lvl',
+                formulaOther: 'Stat = ((BaseStat × 2 + IV + EV/2) × lvl/100 + 5) × char × train [× chip]',
+                formulaMod: 'ModStat = Stat × (2 + n) / (2 + m) × множник',
+                chipDesc: '× 1.02 (якщо увімкнено)',
+                boostPlusDesc: 'показник збільшення стата (0-6)',
+                boostMinusDesc: 'показник зменшення стата (0-6)',
+                multiplierDesc: 'вільний множник для айтемів чи абілок (за замовчуванням 1)',
+                importantRound: 'Результат округлюється за математичними правилами.',
+                addCalc: '➕ Додати калькулятор',
+                maxCalcs: 'Максимум 5 калькуляторів',
+                calcOf: 'калькулятор',
+                clearCard: '🔄 Очистити',
+                deleteCard: '✖ Видалити',
+                calcNum: 'Калькулятор #',
+                dmgLevel: 'Рівень',
+                dmgAttack: 'Атака',
+                dmgDefense: 'Захист',
+                dmgBase: 'База атаки',
+                dmgType: 'Тип',
+                dmgTerrain: 'Арена',
+                dmgItem: 'Айтем',
+                dmgWeather: 'Погода',
+                dmgOther: 'Інше',
+                dmgCrit: 'Крит',
+                itemNone: 'Немає',
+                itemStab: 'STAB (1.1)',
+                itemRage: 'Ярість (1.25)',
+                itemBrave: 'Хоробр. (1.15)',
+                damageFormulaTitle: 'Формула розрахунку урону',
+                damageFormula: 'Damage = ((2 × lvl + 10) / 250 × Attack / Defense × Base + 2) × STAB × Type × Critical × Terrain × Item × Weather × other × random[0.85, 1]',
+                stabDesc: '1.5 якщо тип атаки збігається з типом покемона, інакше 1',
+                typeDesc: 'коефіцієнт ефективності типу (0, 0.25, 0.5, 1, 2, 4, 8)',
+                critDesc: '1.5 при критичному ударі, інакше 1',
+                terrainDesc: 'арена (1, 1.2, 1.5)',
+                itemDesc: 'айтем (1 / 1.1 STAB посилювач / 1.25 Сфера ярості / 1.15 Пов\'язка хоробрості)',
+                weatherDesc: 'погода (1 / 0.5 послаблення / 1.5 посилення)',
+                otherDesc: 'інші множники (абілки тощо)',
+                randomDesc: 'випадкове число від 0.85 до 1',
+                importantFloor: 'Результат округлюється в меншу сторону (floor).',
+                min: 'Мін',
+                max: 'Макс',
+                avg: 'Сер'
+            },
+            ru: {
+                title: 'Калькулятор L17',
+                tabStats: '📊 Статы',
+                tabDamage: '⚔️ Урон',
+                level: 'Уровень:',
+                statName: 'Название стата',
+                baseStats: 'Базовые статы',
+                character: 'Характер',
+                training: 'Тренировка',
+                chip: 'Чип',
+                boostPlus: 'Раскач (+)',
+                boostMinus: 'Раскач (-)',
+                multiplier: 'Множитель',
+                stat: 'Стат',
+                notes: 'Заметки',
+                actions: 'Действия',
+                clear: 'Очистить',
+                hp: 'HP',
+                attack: 'Атака',
+                defense: 'Защита',
+                speed: 'Скорость',
+                spAttack: 'Спец. Атака',
+                spDefense: 'Спец. Защита',
+                trainNone: 'Нет',
+                trainInitial: 'Начальная (1.1)',
+                trainExpanded: 'Расширенная (1.18)',
+                trainMaster: 'Мастерская (1.25)',
+                trainFamous: 'Знаменитая (1.31)',
+                trainLegendary: 'Легендарная (1.36)',
+                trainNamed: 'Именная (1.4)',
+                notesPlaceholder: 'Заметки...',
+                showFormulas: 'Показать формулы',
+                formulasTitle: 'Формулы расчета',
+                formulaHP: 'HP = (BaseStat × 2 + IV + EV/2) × lvl/100 + 10 + lvl',
+                formulaOther: 'Stat = ((BaseStat × 2 + IV + EV/2) × lvl/100 + 5) × char × train [× chip]',
+                formulaMod: 'ModStat = Stat × (2 + n) / (2 + m) × множитель',
+                chipDesc: '× 1.02 (если включен)',
+                boostPlusDesc: 'показатель увеличения стата (0-6)',
+                boostMinusDesc: 'показатель уменьшения стата (0-6)',
+                multiplierDesc: 'свободный множитель для айтемов или абилок (по умолчанию 1)',
+                importantRound: 'Результат округляется по математическим правилам.',
+                addCalc: '➕ Добавить калькулятор',
+                maxCalcs: 'Максимум 5 калькуляторов',
+                calcOf: 'калькулятор',
+                clearCard: '🔄 Очистить',
+                deleteCard: '✖ Удалить',
+                calcNum: 'Калькулятор #',
+                dmgLevel: 'Уровень',
+                dmgAttack: 'Атака',
+                dmgDefense: 'Защита',
+                dmgBase: 'База атаки',
+                dmgType: 'Тип',
+                dmgTerrain: 'Арена',
+                dmgItem: 'Айтем',
+                dmgWeather: 'Погода',
+                dmgOther: 'Другое',
+                dmgCrit: 'Крит',
+                itemNone: 'Нет',
+                itemStab: 'STAB (1.1)',
+                itemRage: 'Ярость (1.25)',
+                itemBrave: 'Храбр. (1.15)',
+                damageFormulaTitle: 'Формула расчета урона',
+                damageFormula: 'Damage = ((2 × lvl + 10) / 250 × Attack / Defense × Base + 2) × STAB × Type × Critical × Terrain × Item × Weather × other × random[0.85, 1]',
+                stabDesc: '1.5 если тип атаки совпадает с типом покемона, иначе 1',
+                typeDesc: 'коэффициент эффективности типа (0, 0.25, 0.5, 1, 2, 4, 8)',
+                critDesc: '1.5 при критическом ударе, иначе 1',
+                terrainDesc: 'арена (1, 1.2, 1.5)',
+                itemDesc: 'айтем (1 / 1.1 STAB усилитель / 1.25 Сфера ярости / 1.15 Повязка храбрости)',
+                weatherDesc: 'погода (1 / 0.5 ослабление / 1.5 усиление)',
+                otherDesc: 'другие множители (абилки и т.д.)',
+                randomDesc: 'случайное число от 0.85 до 1',
+                importantFloor: 'Результат округляется в меньшую сторону (floor).',
+                min: 'Мин',
+                max: 'Макс',
+                avg: 'Сред'
+            },
+            en: {
+                title: 'L17 Calculator',
+                tabStats: '📊 Stats',
+                tabDamage: '⚔️ Damage',
+                level: 'Level:',
+                statName: 'Stat Name',
+                baseStats: 'Base Stats',
+                character: 'Nature',
+                training: 'Training',
+                chip: 'Chip',
+                boostPlus: 'Boost (+)',
+                boostMinus: 'Boost (-)',
+                multiplier: 'Multiplier',
+                stat: 'Stat',
+                notes: 'Notes',
+                actions: 'Actions',
+                clear: 'Clear',
+                hp: 'HP',
+                attack: 'Attack',
+                defense: 'Defense',
+                speed: 'Speed',
+                spAttack: 'Sp. Attack',
+                spDefense: 'Sp. Defense',
+                trainNone: 'None',
+                trainInitial: 'Initial (1.1)',
+                trainExpanded: 'Expanded (1.18)',
+                trainMaster: 'Master (1.25)',
+                trainFamous: 'Famous (1.31)',
+                trainLegendary: 'Legendary (1.36)',
+                trainNamed: 'Named (1.4)',
+                notesPlaceholder: 'Notes...',
+                showFormulas: 'Show formulas',
+                formulasTitle: 'Calculation Formulas',
+                formulaHP: 'HP = (BaseStat × 2 + IV + EV/2) × lvl/100 + 10 + lvl',
+                formulaOther: 'Stat = ((BaseStat × 2 + IV + EV/2) × lvl/100 + 5) × char × train [× chip]',
+                formulaMod: 'ModStat = Stat × (2 + n) / (2 + m) × multiplier',
+                chipDesc: '× 1.02 (if enabled)',
+                boostPlusDesc: 'stat increase stage (0-6)',
+                boostMinusDesc: 'stat decrease stage (0-6)',
+                multiplierDesc: 'free multiplier for items or abilities (default 1)',
+                importantRound: 'Result is rounded mathematically.',
+                addCalc: '➕ Add Calculator',
+                maxCalcs: 'Maximum 5 calculators',
+                calcOf: 'calculator',
+                clearCard: '🔄 Clear',
+                deleteCard: '✖ Delete',
+                calcNum: 'Calculator #',
+                dmgLevel: 'Level',
+                dmgAttack: 'Attack',
+                dmgDefense: 'Defense',
+                dmgBase: 'Move Power',
+                dmgType: 'Type',
+                dmgTerrain: 'Terrain',
+                dmgItem: 'Item',
+                dmgWeather: 'Weather',
+                dmgOther: 'Other',
+                dmgCrit: 'Crit',
+                itemNone: 'None',
+                itemStab: 'STAB (1.1)',
+                itemRage: 'Rage (1.25)',
+                itemBrave: 'Brave (1.15)',
+                damageFormulaTitle: 'Damage Calculation Formula',
+                damageFormula: 'Damage = ((2 × lvl + 10) / 250 × Attack / Defense × Base + 2) × STAB × Type × Critical × Terrain × Item × Weather × other × random[0.85, 1]',
+                stabDesc: '1.5 if attack type matches Pokémon type, otherwise 1',
+                typeDesc: 'type effectiveness coefficient (0, 0.25, 0.5, 1, 2, 4, 8)',
+                critDesc: '1.5 on critical hit, otherwise 1',
+                terrainDesc: 'terrain (1, 1.2, 1.5)',
+                itemDesc: 'item (1 / 1.1 STAB booster / 1.25 Rage Sphere / 1.15 Bravery Band)',
+                weatherDesc: 'weather (1 / 0.5 weakening / 1.5 boosting)',
+                otherDesc: 'other multipliers (abilities etc.)',
+                randomDesc: 'random number from 0.85 to 1',
+                importantFloor: 'Result is rounded down (floor).',
+                min: 'Min',
+                max: 'Max',
+                avg: 'Avg'
+            }
+        };
+        
+        let currentLang = 'uk';
+        
+        function setLanguage(lang) {
+            currentLang = lang;
+            
+            // Update language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === {uk: 'UA', ru: 'RU', en: 'EN'}[lang]);
+            });
+            
+            const t = translations[lang];
+            
+            // Update title
+            document.querySelector('[data-i18n="title"]').textContent = t.title;
+            
+            // Update tabs
+            document.querySelectorAll('.tab-btn')[0].textContent = t.tabStats;
+            document.querySelectorAll('.tab-btn')[1].textContent = t.tabDamage;
+            
+            // Update level label
+            document.querySelector('.level-input label').textContent = t.level;
+            
+            // Update table headers
+            const headers = document.querySelectorAll('th');
+            headers[0].textContent = t.statName;
+            headers[1].textContent = t.baseStats;
+            headers[4].textContent = t.character;
+            headers[5].textContent = t.training;
+            headers[6].textContent = t.chip;
+            headers[7].textContent = t.boostPlus;
+            headers[8].textContent = t.boostMinus;
+            headers[9].textContent = t.multiplier;
+            headers[10].textContent = t.stat;
+            headers[11].textContent = t.notes;
+            headers[12].textContent = t.actions;
+            
+            // Update stat names
+            const statRows = document.querySelectorAll('tbody tr');
+            statRows[0].querySelector('td').textContent = t.hp;
+            statRows[1].querySelector('td').textContent = t.attack;
+            statRows[2].querySelector('td').textContent = t.defense;
+            statRows[3].querySelector('td').textContent = t.speed;
+            statRows[4].querySelector('td').textContent = t.spAttack;
+            statRows[5].querySelector('td').textContent = t.spDefense;
+            
+            // Update training options
+            document.querySelectorAll('select[id$="-train"]').forEach(select => {
+                select.options[0].textContent = t.trainNone;
+                select.options[1].textContent = t.trainInitial;
+                select.options[2].textContent = t.trainExpanded;
+                select.options[3].textContent = t.trainMaster;
+                select.options[4].textContent = t.trainFamous;
+                select.options[5].textContent = t.trainLegendary;
+                select.options[6].textContent = t.trainNamed;
+            });
+            
+            // Update clear buttons
+            document.querySelectorAll('.clear-btn').forEach(btn => {
+                btn.textContent = t.clear;
+            });
+            
+            // Update notes placeholders
+            document.querySelectorAll('input[id$="-notes"]').forEach(input => {
+                input.placeholder = t.notesPlaceholder;
+            });
+            
+            // Update stats formula section
+            const statsFormula = document.querySelector('#stats-tab .formula-info');
+            statsFormula.querySelector('summary').textContent = t.showFormulas;
+            statsFormula.querySelector('h3').textContent = t.formulasTitle;
+            const formulas = statsFormula.querySelectorAll('.formula');
+            formulas[0].innerHTML = `<strong>HP:</strong> ${t.formulaHP}`;
+            formulas[1].innerHTML = `<strong>${lang === 'en' ? 'Other stats' : (lang === 'ru' ? 'Другие статы' : 'Інші стати')}:</strong> ${t.formulaOther}`;
+            formulas[2].innerHTML = `<strong>${lang === 'en' ? 'Battle mod' : (lang === 'ru' ? 'Модификация в бою' : 'Модифікація в бою')}:</strong> ${t.formulaMod}`;
+            const statsParagraphs = statsFormula.querySelectorAll('p');
+            statsParagraphs[0].innerHTML = `<strong>${t.chip}:</strong> ${t.chipDesc}`;
+            statsParagraphs[1].innerHTML = `<strong>${t.boostPlus}:</strong> ${t.boostPlusDesc}, <strong>${t.boostMinus}:</strong> ${t.boostMinusDesc}`;
+            statsParagraphs[2].innerHTML = `<strong>${t.multiplier}:</strong> ${t.multiplierDesc}`;
+            statsParagraphs[3].innerHTML = `<strong>${lang === 'en' ? 'Important' : (lang === 'ru' ? 'Важно' : 'Важливо')}:</strong> ${t.importantRound}`;
+            
+            // Update add card button
+            updateAddButton();
+            
+            // Update damage formula section
+            const dmgFormula = document.querySelector('#damage-tab .formula-info');
+            dmgFormula.querySelector('summary').textContent = t.showFormulas;
+            dmgFormula.querySelector('h3').textContent = t.damageFormulaTitle;
+            dmgFormula.querySelector('.formula').innerHTML = `<strong>Damage</strong> = ${t.damageFormula.split(' = ')[1]}`;
+            const dmgParagraphs = dmgFormula.querySelectorAll('p');
+            dmgParagraphs[0].innerHTML = `<strong>STAB:</strong> ${t.stabDesc}`;
+            dmgParagraphs[1].innerHTML = `<strong>Type:</strong> ${t.typeDesc}`;
+            dmgParagraphs[2].innerHTML = `<strong>Critical:</strong> ${t.critDesc}`;
+            dmgParagraphs[3].innerHTML = `<strong>Terrain:</strong> ${t.terrainDesc}`;
+            dmgParagraphs[4].innerHTML = `<strong>Item:</strong> ${t.itemDesc}`;
+            dmgParagraphs[5].innerHTML = `<strong>Weather:</strong> ${t.weatherDesc}`;
+            dmgParagraphs[6].innerHTML = `<strong>other:</strong> ${t.otherDesc}`;
+            dmgParagraphs[7].innerHTML = `<strong>random:</strong> ${t.randomDesc}`;
+            dmgParagraphs[8].innerHTML = `<strong>${lang === 'en' ? 'Important' : (lang === 'ru' ? 'Важно' : 'Важливо')}:</strong> ${t.importantFloor}`;
+            
+            // Update existing damage cards
+            document.querySelectorAll('.damage-card').forEach(card => {
+                const cardId = card.id.replace('damage-card-', '');
+                updateCardLanguage(card, cardId);
+            });
+        }
+        
+        function updateCardLanguage(card, cardId) {
+            const t = translations[currentLang];
+            card.querySelector('.damage-card-title').textContent = t.calcNum + cardId;
+            card.querySelector('.clear-card-btn').textContent = t.clearCard;
+            card.querySelector('.delete-card-btn').textContent = t.deleteCard;
+            
+            const labels = card.querySelectorAll('.damage-card-field > label');
+            labels[0].textContent = t.dmgLevel;
+            labels[1].textContent = t.dmgAttack;
+            labels[2].textContent = t.dmgDefense;
+            labels[3].textContent = t.dmgBase;
+            labels[4].textContent = t.dmgType;
+            labels[5].textContent = t.dmgTerrain;
+            labels[6].textContent = t.dmgItem;
+            labels[7].textContent = t.dmgWeather;
+            labels[8].textContent = t.dmgOther;
+            
+            const checkboxLabels = card.querySelectorAll('.checkbox-field label');
+            checkboxLabels[0].textContent = 'STAB';
+            checkboxLabels[1].textContent = t.dmgCrit;
+            
+            const itemSelect = card.querySelector('.dmg-item');
+            itemSelect.options[0].textContent = t.itemNone;
+            itemSelect.options[1].textContent = t.itemStab;
+            itemSelect.options[2].textContent = t.itemRage;
+            itemSelect.options[3].textContent = t.itemBrave;
+            
+            card.querySelector('.damage-card-notes').placeholder = t.notesPlaceholder;
+        }
+        
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        }
+        
+        function calculateHP() {
+            const levelInput = document.getElementById('level').value;
+            const level = levelInput === '' ? 100 : parseInt(levelInput);
+            const baseStat = parseInt(document.getElementById('hp-base').value) || 0;
+            const iv = parseInt(document.getElementById('hp-iv').value) || 0;
+            const ev = parseInt(document.getElementById('hp-ev').value) || 0;
+            
+            if (!baseStat) {
+                document.getElementById('hp-result').textContent = '—';
+                return;
+            }
+            
+            // HP = (BaseStat * 2 + IV + EV/2) * lvl/100 + 10 + lvl
+            const hp = (baseStat * 2 + iv + ev / 2) * level / 100 + 10 + level;
+            
+            document.getElementById('hp-result').textContent = Math.round(hp);
+        }
+        
+        function calculateStat(prefix) {
+            const levelInput = document.getElementById('level').value;
+            const level = levelInput === '' ? 100 : parseInt(levelInput);
+            const baseStat = parseInt(document.getElementById(`${prefix}-base`).value) || 0;
+            const iv = parseInt(document.getElementById(`${prefix}-iv`).value) || 0;
+            const ev = parseInt(document.getElementById(`${prefix}-ev`).value) || 0;
+            const char = parseFloat(document.getElementById(`${prefix}-char`).value) || 1;
+            const train = parseFloat(document.getElementById(`${prefix}-train`).value) || 1;
+            const chip = document.getElementById(`${prefix}-chip`).checked ? 1.02 : 1;
+            const modN = parseInt(document.getElementById(`${prefix}-mod-n`).value) || 0;
+            const modM = parseInt(document.getElementById(`${prefix}-mod-m`).value) || 0;
+            const multInput = document.getElementById(`${prefix}-mult`).value;
+            const mult = multInput === '' ? 1 : parseFloat(multInput);
+            
+            if (!baseStat) {
+                document.getElementById(`${prefix}-result`).textContent = '—';
+                return;
+            }
+            
+            // Stat = ((BaseStat * 2 + IV + EV/2) * lvl/100 + 5) * char * train * chip * (2+n)/(2+m) * mult
+            let stat = ((baseStat * 2 + iv + ev / 2) * level / 100 + 5) * char * train * chip;
+            stat = stat * (2 + modN) / (2 + modM) * mult;
+            
+            document.getElementById(`${prefix}-result`).textContent = Math.round(stat);
+        }
+        
+        function calculateAll() {
+            calculateHP();
+            calculateStat('atk');
+            calculateStat('def');
+            calculateStat('spd');
+            calculateStat('spa');
+            calculateStat('spdef');
+        }
+        
+        function clearRow(prefix) {
+            document.getElementById(`${prefix}-base`).value = '';
+            document.getElementById(`${prefix}-iv`).value = '';
+            document.getElementById(`${prefix}-ev`).value = '';
+            document.getElementById(`${prefix}-notes`).value = '';
+            
+            if (prefix !== 'hp') {
+                document.getElementById(`${prefix}-char`).value = '1';
+                document.getElementById(`${prefix}-train`).value = '1';
+                document.getElementById(`${prefix}-chip`).checked = false;
+                document.getElementById(`${prefix}-mod-n`).value = '';
+                document.getElementById(`${prefix}-mod-m`).value = '';
+                document.getElementById(`${prefix}-mult`).value = '';
+            }
+            
+            calculateAll();
+        }
+        
+        function calculateDamage(cardId) {
+            const card = document.getElementById(`damage-card-${cardId}`);
+            if (!card) return;
+            
+            const levelInput = card.querySelector('.dmg-level').value;
+            const level = levelInput === '' ? 100 : parseInt(levelInput);
+            const attack = parseInt(card.querySelector('.dmg-attack').value) || 0;
+            const defense = parseInt(card.querySelector('.dmg-defense').value) || 1;
+            const base = parseInt(card.querySelector('.dmg-base').value) || 0;
+            const type = parseFloat(card.querySelector('.dmg-type').value) || 1;
+            const terrain = parseFloat(card.querySelector('.dmg-terrain').value) || 1;
+            const item = parseFloat(card.querySelector('.dmg-item').value) || 1;
+            const weather = parseFloat(card.querySelector('.dmg-weather').value) || 1;
+            const otherInput = card.querySelector('.dmg-other').value;
+            const other = otherInput === '' ? 1 : parseFloat(otherInput);
+            const stab = card.querySelector('.dmg-stab').checked ? 1.5 : 1;
+            const crit = card.querySelector('.dmg-crit').checked ? 1.5 : 1;
+            
+            const resultEl = card.querySelector('.damage-card-value');
+            const rangeEl = card.querySelector('.damage-card-range');
+            
+            if (!attack || !base || defense === 0) {
+                resultEl.textContent = '—';
+                rangeEl.textContent = '—';
+                return;
+            }
+            
+            const defVal = defense || 1;
+            const baseDamage = ((2 * level + 10) / 250 * attack / defVal * base + 2) * stab * type * crit * terrain * item * weather * other;
+            
+            const minDamage = Math.floor(baseDamage * 0.85);
+            const maxDamage = Math.floor(baseDamage * 1);
+            
+            resultEl.textContent = `${minDamage} - ${maxDamage}`;
+            const t = translations[currentLang];
+            rangeEl.textContent = `${t.min}: ${minDamage} | ${t.max}: ${maxDamage} | ${t.avg}: ${Math.floor((minDamage + maxDamage) / 2)}`;
+        }
+        
+        let damageCardCounter = 0;
+        const MAX_DAMAGE_CARDS = 5;
+        
+        function createDamageCardHTML(cardId) {
+            return `
+                <div class="damage-card" id="damage-card-${cardId}">
+                    <div class="damage-card-header">
+                        <h3 class="damage-card-title">Калькулятор #${cardId}</h3>
+                        <div class="damage-card-buttons">
+                            <button class="card-btn clear-card-btn" onclick="clearDamageCard(${cardId})">🔄 Очистити</button>
+                            <button class="card-btn delete-card-btn" onclick="deleteDamageCard(${cardId})">✖ Видалити</button>
+                        </div>
+                    </div>
+                    
+                    <div class="damage-card-grid">
+                        <div class="damage-card-field">
+                            <label>Рівень</label>
+                            <input type="number" class="dmg-level" placeholder="100" min="1" max="100" oninput="calculateDamage(${cardId})">
+                        </div>
+                        <div class="damage-card-field stat-with-modifier">
+                            <label>Атака</label>
+                            <input type="number" class="dmg-attack" placeholder="0" min="0" oninput="updateBaseStat(${cardId}, 'attack'); calculateDamage(${cardId})">
+                            <input type="hidden" class="dmg-attack-base" value="0">
+                            <input type="hidden" class="dmg-attack-mod" value="0">
+                            <span class="modifier-badge dmg-attack-badge" style="display:none"></span>
+                            <div class="modifier-controls">
+                                <button type="button" class="mod-btn mod-btn-minus" onclick="modifyStat(${cardId}, 'attack', -1)">−</button>
+                                <button type="button" class="mod-btn mod-btn-plus" onclick="modifyStat(${cardId}, 'attack', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="damage-card-field stat-with-modifier">
+                            <label>Захист</label>
+                            <input type="number" class="dmg-defense" placeholder="0" min="0" oninput="updateBaseStat(${cardId}, 'defense'); calculateDamage(${cardId})">
+                            <input type="hidden" class="dmg-defense-base" value="0">
+                            <input type="hidden" class="dmg-defense-mod" value="0">
+                            <span class="modifier-badge dmg-defense-badge" style="display:none"></span>
+                            <div class="modifier-controls">
+                                <button type="button" class="mod-btn mod-btn-minus" onclick="modifyStat(${cardId}, 'defense', -1)">−</button>
+                                <button type="button" class="mod-btn mod-btn-plus" onclick="modifyStat(${cardId}, 'defense', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="damage-card-field">
+                            <label>База атаки</label>
+                            <input type="number" class="dmg-base" placeholder="0" min="0" oninput="calculateDamage(${cardId})">
+                        </div>
+                        <div class="damage-card-field">
+                            <label>Тип</label>
+                            <select class="dmg-type" oninput="calculateDamage(${cardId})">
+                                <option value="0">0</option>
+                                <option value="0.25">×¼</option>
+                                <option value="0.5">×½</option>
+                                <option value="1" selected>×1</option>
+                                <option value="2">×2</option>
+                                <option value="4">×4</option>
+                                <option value="8">×8</option>
+                            </select>
+                        </div>
+                        <div class="damage-card-field">
+                            <label>Арена</label>
+                            <select class="dmg-terrain" oninput="calculateDamage(${cardId})">
+                                <option value="1" selected>1</option>
+                                <option value="1.2">1.2</option>
+                                <option value="1.5">1.5</option>
+                            </select>
+                        </div>
+                        <div class="damage-card-field">
+                            <label>Айтем</label>
+                            <select class="dmg-item" oninput="calculateDamage(${cardId})">
+                                <option value="1" selected>Немає</option>
+                                <option value="1.1">STAB (1.1)</option>
+                                <option value="1.25">Ярість (1.25)</option>
+                                <option value="1.15">Хоробр. (1.15)</option>
+                            </select>
+                        </div>
+                        <div class="damage-card-field">
+                            <label>Погода</label>
+                            <select class="dmg-weather" oninput="calculateDamage(${cardId})">
+                                <option value="1" selected>1</option>
+                                <option value="0.5">0.5</option>
+                                <option value="1.5">1.5</option>
+                            </select>
+                        </div>
+                        <div class="damage-card-field">
+                            <label>Інше</label>
+                            <input type="number" class="dmg-other" placeholder="1" step="0.01" min="0" oninput="calculateDamage(${cardId})">
+                        </div>
+                        <div class="damage-card-field checkbox-field">
+                            <input type="checkbox" class="dmg-stab" oninput="calculateDamage(${cardId})">
+                            <label>STAB</label>
+                        </div>
+                        <div class="damage-card-field checkbox-field">
+                            <input type="checkbox" class="dmg-crit" oninput="calculateDamage(${cardId})">
+                            <label>Крит</label>
+                        </div>
+                    </div>
+                    
+                    <div class="damage-card-result">
+                        <div class="value damage-card-value">—</div>
+                        <div class="range damage-card-range">—</div>
+                    </div>
+                    
+                    <textarea class="damage-card-notes" placeholder="Нотатки..."></textarea>
+                </div>
+            `;
+        }
+        
+        function addDamageCard() {
+            const container = document.getElementById('damage-cards');
+            const currentCards = container.querySelectorAll('.damage-card').length;
+            
+            if (currentCards >= MAX_DAMAGE_CARDS) {
+                return;
+            }
+            
+            damageCardCounter++;
+            container.insertAdjacentHTML('beforeend', createDamageCardHTML(damageCardCounter));
+            
+            // Apply current language to new card
+            const newCard = document.getElementById(`damage-card-${damageCardCounter}`);
+            updateCardLanguage(newCard, damageCardCounter);
+            
+            updateAddButton();
+        }
+        
+        function deleteDamageCard(cardId) {
+            const card = document.getElementById(`damage-card-${cardId}`);
+            if (card) {
+                card.remove();
+                updateAddButton();
+            }
+        }
+        
+        function clearDamageCard(cardId) {
+            const card = document.getElementById(`damage-card-${cardId}`);
+            if (!card) return;
+            
+            card.querySelector('.dmg-level').value = '';
+            card.querySelector('.dmg-attack').value = '';
+            card.querySelector('.dmg-attack-base').value = '0';
+            card.querySelector('.dmg-attack-mod').value = '0';
+            card.querySelector('.dmg-attack-badge').style.display = 'none';
+            card.querySelector('.dmg-defense').value = '';
+            card.querySelector('.dmg-defense-base').value = '0';
+            card.querySelector('.dmg-defense-mod').value = '0';
+            card.querySelector('.dmg-defense-badge').style.display = 'none';
+            card.querySelector('.dmg-base').value = '';
+            card.querySelector('.dmg-type').value = '1';
+            card.querySelector('.dmg-terrain').value = '1';
+            card.querySelector('.dmg-item').value = '1';
+            card.querySelector('.dmg-weather').value = '1';
+            card.querySelector('.dmg-other').value = '';
+            card.querySelector('.dmg-stab').checked = false;
+            card.querySelector('.dmg-crit').checked = false;
+            card.querySelector('.damage-card-notes').value = '';
+            
+            calculateDamage(cardId);
+        }
+        
+        function updateBaseStat(cardId, statType) {
+            const card = document.getElementById(`damage-card-${cardId}`);
+            if (!card) return;
+            
+            const input = card.querySelector(`.dmg-${statType}`);
+            const baseInput = card.querySelector(`.dmg-${statType}-base`);
+            const modInput = card.querySelector(`.dmg-${statType}-mod`);
+            const badge = card.querySelector(`.dmg-${statType}-badge`);
+            
+            // When user manually edits, reset modifier and save as new base
+            baseInput.value = input.value || '0';
+            modInput.value = '0';
+            badge.style.display = 'none';
+        }
+        
+        function modifyStat(cardId, statType, delta) {
+            const card = document.getElementById(`damage-card-${cardId}`);
+            if (!card) return;
+            
+            const input = card.querySelector(`.dmg-${statType}`);
+            const baseInput = card.querySelector(`.dmg-${statType}-base`);
+            const modInput = card.querySelector(`.dmg-${statType}-mod`);
+            const badge = card.querySelector(`.dmg-${statType}-badge`);
+            
+            // Get or set base value
+            let baseValue = parseFloat(baseInput.value) || 0;
+            if (baseValue === 0 && input.value) {
+                baseValue = parseFloat(input.value) || 0;
+                baseInput.value = baseValue;
+            }
+            
+            if (baseValue === 0) return;
+            
+            // Update modifier (clamped to -6 to +6)
+            let currentMod = parseInt(modInput.value) || 0;
+            let newMod = Math.max(-6, Math.min(6, currentMod + delta));
+            modInput.value = newMod;
+            
+            // Calculate modified stat: base * (2 + positive) / (2 + negative)
+            let modifiedValue;
+            if (newMod >= 0) {
+                modifiedValue = baseValue * (2 + newMod) / 2;
+            } else {
+                modifiedValue = baseValue * 2 / (2 + Math.abs(newMod));
+            }
+            
+            input.value = Math.round(modifiedValue);
+            
+            // Update badge
+            if (newMod !== 0) {
+                badge.textContent = newMod > 0 ? `+${newMod}` : newMod;
+                badge.style.display = 'block';
+                badge.style.background = newMod > 0 ? '#27ae60' : '#e74c3c';
+                badge.style.color = 'white';
+            } else {
+                badge.style.display = 'none';
+            }
+            
+            calculateDamage(cardId);
+        }
+        
+        function updateAddButton() {
+            const container = document.getElementById('damage-cards');
+            const currentCards = container.querySelectorAll('.damage-card').length;
+            const addBtn = document.querySelector('.add-card-btn');
+            const t = translations[currentLang];
+            
+            if (currentCards >= MAX_DAMAGE_CARDS) {
+                addBtn.disabled = true;
+                addBtn.textContent = t.maxCalcs;
+            } else {
+                addBtn.disabled = false;
+                addBtn.textContent = `${t.addCalc} (${currentCards}/${MAX_DAMAGE_CARDS})`;
+            }
+        }
+        
+        // Calculate on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateAll();
+            addDamageCard(); // Add first damage card
+        });
+    </script>
+</body>
+</html>
